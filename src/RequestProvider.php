@@ -89,7 +89,11 @@ class RequestProvider
 
         if($this->logger)
         {
-            $this->logger->log($response);
+            $this->logger->log($response, [
+                'url' => $url,
+                'method' => $method,
+                'options' => $options
+            ]);
         }
 
         return $response;
