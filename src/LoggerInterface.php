@@ -5,8 +5,8 @@ namespace GuzzleWrapper;
 interface LoggerInterface
 {
     /**
-     * @param ResultWrapper $result
+     * @param ResponseWrapper $result
      * @return mixed
      */
-    public function log(ResultWrapper $result);
+    public function log(ResponseWrapper $result);
 }

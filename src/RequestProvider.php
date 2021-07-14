@@ -60,9 +60,9 @@ class RequestProvider
      * @param array $data
      * @param array $addHeaders
      * @param bool $postAsForm
-     * @return ResultWrapper
+     * @return ResponseWrapper
      */
-    public function request(string $url, string $method = 'get', array $data = [], array $addHeaders = [], bool $postAsForm = false) : ResultWrapper
+    public function request(string $url, string $method = 'get', array $data = [], array $addHeaders = [], bool $postAsForm = false) : ResponseWrapper
     {
         $options = [];
 
@@ -99,9 +99,9 @@ class RequestProvider
      * @param string $method
      * @param $url
      * @param array $options
-     * @return ResultWrapper
+     * @return ResponseWrapper
      */
-    protected function sendRequestHandler($url, string $method, array $options = []) : ResultWrapper
+    protected function sendRequestHandler($url, string $method, array $options = []) : ResponseWrapper
     {
         $currentAttempt = 0;
         $response = null;
@@ -126,6 +126,6 @@ class RequestProvider
         }
         while(($e instanceof ServerException) and ($currentAttempt <= $this->attemptsCountWhenServerError));
 
-        return new ResultWrapper($response, ($errorsBag ? $errorsBag : null));
+        return new ResponseWrapper($response, ($errorsBag ? $errorsBag : null));
     }
 }
