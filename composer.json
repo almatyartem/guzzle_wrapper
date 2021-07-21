@@ -5,11 +5,16 @@
         {
             "type": "vcs",
             "url": "git@github.com:almatyartem/response_wrapper.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:almatyartem/rp_contracts.git"
         }
     ],
     "require": {
         "php": "^7.4|^8.0",
         "turbodev/response_wrapper": "dev-master",
+        "turbodev/rp_contracts": "dev-master",
         "guzzlehttp/guzzle": "^7.2"
     },
     "minimum-stability": "dev",

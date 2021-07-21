@@ -4,8 +4,10 @@ namespace GuzzleWrapper;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ServerException;
+use RpContracts\Logger;
+use RpContracts\Response;
 
-class RequestProvider
+class RequestProvider implements \RpContracts\RequestProvider
 {
     /**
      * @var Client
@@ -28,22 +30,22 @@ class RequestProvider
     protected int $sleepTimeBetweenAttempts;
 
     /**
-     * @var LoggerInterface|null
+     * @var Logger|null
      */
-    protected ?LoggerInterface $logger;
+    protected ?Logger $logger;
 
     /**
      * RequestProvider constructor.
      * @param string $endpoint
      * @param int $attemptsCountWhenServerError
      * @param int $sleepTimeBetweenAttempts
-     * @param LoggerInterface|null $logger
+     * @param Logger|null $logger
      */
     public function __construct(
         string $endpoint,
         int $attemptsCountWhenServerError = 1,
         int $sleepTimeBetweenAttempts = 1,
-        LoggerInterface $logger = null
+        Logger $logger = null
     )
     {
         $this->httpClient = new Client(['verify' => false]);
@@ -60,9 +62,9 @@ class RequestProvider
      * @param array $data
      * @param array $addHeaders
      * @param bool $postAsForm
-     * @return ResponseWrapper
+     * @return Response
      */
-    public function request(string $url, string $method = 'get', array $data = [], array $addHeaders = [], bool $postAsForm = false) : ResponseWrapper
+    public function request(string $url, string $method = 'get', array $data = [], array $addHeaders = [], bool $postAsForm = false) : Response
     {
         $options = [];
 
@@ -103,9 +105,9 @@ class RequestProvider
      * @param string $method
      * @param $url
      * @param array $options
-     * @return ResponseWrapper
+     * @return Response
      */
-    protected function sendRequestHandler($url, string $method, array $options = []) : ResponseWrapper
+    protected function sendRequestHandler($url, string $method, array $options = []) : Response
     {
         $currentAttempt = 0;
         $response = null;
