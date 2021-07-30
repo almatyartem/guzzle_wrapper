@@ -4,6 +4,7 @@ namespace GuzzleWrapper;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ServerException;
+use RpContracts\Cache;
 use RpContracts\Logger;
 use RpContracts\Response;
 
@@ -35,6 +36,11 @@ class RequestProvider implements \RpContracts\RequestProvider
     protected ?Logger $logger;
 
     /**
+     * @var Cache|null
+     */
+    protected ?Cache $cacheProvider;
+
+    /**
      * RequestProvider constructor.
      * @param string $endpoint
      * @param int $attemptsCountWhenServerError
@@ -45,7 +51,8 @@ class RequestProvider implements \RpContracts\RequestProvider
         string $endpoint,
         int $attemptsCountWhenServerError = 1,
         int $sleepTimeBetweenAttempts = 1,
-        Logger $logger = null
+        Logger $logger = null,
+        Cache $cacheProvider = null
     )
     {
         $this->httpClient = new Client(['verify' => false]);
@@ -56,16 +63,28 @@ class RequestProvider implements \RpContracts\RequestProvider
     }
 
     /**
-     * @param string $api
-     * @param string $method
      * @param string $url
+     * @param string $method
      * @param array $data
      * @param array $addHeaders
      * @param bool $postAsForm
+     * @param int|null $cacheTtl
      * @return Response
      */
-    public function request(string $url, string $method = 'get', array $data = [], array $addHeaders = [], bool $postAsForm = false) : Response
+    public function request(
+        string $url,
+        string $method = 'get',
+        array $data = [],
+        array $addHeaders = [],
+        bool $postAsForm = false,
+        int $cacheTtl = null
+    ) : Response
     {
+        if($method == 'get' and $this->cacheProvider and $this->cacheProvider->has($url))
+        {
+            return $this->cacheProvider->get($url);
+        }
+
         $options = [];
 
         if($method != 'get' and $data)
@@ -96,6 +115,11 @@ class RequestProvider implements \RpContracts\RequestProvider
                 'method' => $method,
                 'options' => $options
             ]);
+        }
+
+        if($response->isSuccess() and $this->cacheProvider)
+        {
+            $this->cacheProvider->put($url, $response, $cacheTtl);
         }
 
         return $response;
