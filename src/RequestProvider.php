@@ -46,6 +46,7 @@ class RequestProvider implements \RpContracts\RequestProvider
      * @param int $attemptsCountWhenServerError
      * @param int $sleepTimeBetweenAttempts
      * @param Logger|null $logger
+     * @param Cache|null $cacheProvider
      */
     public function __construct(
         string $endpoint,
@@ -60,6 +61,7 @@ class RequestProvider implements \RpContracts\RequestProvider
         $this->attemptsCountWhenServerError = $attemptsCountWhenServerError;
         $this->sleepTimeBetweenAttempts = $sleepTimeBetweenAttempts;
         $this->logger = $logger;
+        $this->cacheProvider = $cacheProvider;
     }
 
     /**
