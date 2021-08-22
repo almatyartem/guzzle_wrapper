@@ -41,19 +41,26 @@ class RequestProvider implements \RpContracts\RequestProvider
     protected ?Cache $cacheProvider;
 
     /**
+     * @var bool
+     */
+    protected bool $doNotCacheEmptyResponse;
+
+    /**
      * RequestProvider constructor.
      * @param string $endpoint
      * @param int $attemptsCountWhenServerError
      * @param int $sleepTimeBetweenAttempts
      * @param Logger|null $logger
      * @param Cache|null $cacheProvider
+     * @param bool $doNotCacheEmptyResponse
      */
     public function __construct(
         string $endpoint,
         int $attemptsCountWhenServerError = 1,
         int $sleepTimeBetweenAttempts = 1,
         Logger $logger = null,
-        Cache $cacheProvider = null
+        Cache $cacheProvider = null,
+        bool $doNotCacheEmptyResponse = true
     )
     {
         $this->httpClient = new Client(['verify' => false]);
@@ -62,6 +69,7 @@ class RequestProvider implements \RpContracts\RequestProvider
         $this->sleepTimeBetweenAttempts = $sleepTimeBetweenAttempts;
         $this->logger = $logger;
         $this->cacheProvider = $cacheProvider;
+        $this->doNotCacheEmptyResponse = $doNotCacheEmptyResponse;
     }
 
     /**
@@ -121,7 +129,10 @@ class RequestProvider implements \RpContracts\RequestProvider
 
         if($response->isSuccess() and $this->cacheProvider)
         {
-            $this->cacheProvider->put($url, $response, $cacheTtl);
+            if(!$this->doNotCacheEmptyResponse or $response->getContents())
+            {
+                $this->cacheProvider->put($url, $response, $cacheTtl);
+            }
         }
 
         return $response;
