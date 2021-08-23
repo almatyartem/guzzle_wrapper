@@ -148,10 +148,10 @@ class RequestProvider implements \RpContracts\RequestProvider
     {
         $currentAttempt = 0;
         $response = null;
-        $e = null;
         $errorsBag = [];
 
         do{
+            $e = null;
             if($currentAttempt > 0)
             {
                 sleep($this->sleepTimeBetweenAttempts);
