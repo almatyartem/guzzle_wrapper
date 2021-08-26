@@ -167,7 +167,7 @@ class RequestProvider implements \RpContracts\RequestProvider
 
             $currentAttempt++;
         }
-        while(($e instanceof ServerException) and ($currentAttempt <= $this->attemptsCountWhenServerError));
+        while(isset($e) and ($e instanceof ServerException) and ($currentAttempt <= $this->attemptsCountWhenServerError));
 
         return new ResponseWrapper($response, ($errorsBag ? $errorsBag : null));
     }
