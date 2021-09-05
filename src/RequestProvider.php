@@ -48,7 +48,7 @@ class RequestProvider implements \RpContracts\RequestProvider
     /**
      * @var array
      */
-    protected array $defaultHeaders = [];
+    protected array $defaultOptions = [];
 
     /**
      * RequestProvider constructor.
@@ -58,7 +58,7 @@ class RequestProvider implements \RpContracts\RequestProvider
      * @param Logger|null $logger
      * @param Cache|null $cacheProvider
      * @param bool $doNotCacheEmptyResponse
-     * @param array $defaultHeaders
+     * @param array $defaultOptions
      */
     public function __construct(
         string $endpoint,
@@ -67,7 +67,7 @@ class RequestProvider implements \RpContracts\RequestProvider
         Logger $logger = null,
         Cache $cacheProvider = null,
         bool $doNotCacheEmptyResponse = true,
-        array $defaultHeaders = []
+        array $defaultOptions = []
     )
     {
         $this->httpClient = new Client(['verify' => false]);
@@ -77,7 +77,7 @@ class RequestProvider implements \RpContracts\RequestProvider
         $this->logger = $logger;
         $this->cacheProvider = $cacheProvider;
         $this->doNotCacheEmptyResponse = $doNotCacheEmptyResponse;
-        $this->defaultHeaders = $defaultHeaders;
+        $this->defaultOptions = $defaultOptions;
     }
 
     /**
@@ -103,7 +103,7 @@ class RequestProvider implements \RpContracts\RequestProvider
             return $this->cacheProvider->get($url);
         }
 
-        $options = [];
+        $options = $this->defaultOptions;
 
         if($method != 'get' and $data)
         {
@@ -118,8 +118,6 @@ class RequestProvider implements \RpContracts\RequestProvider
         }
 
         $options['headers'] = ['Accept' => 'application/json'];
-
-        $addHeaders = array_merge($this->defaultHeaders, $addHeaders);
 
         if($addHeaders)
         {
