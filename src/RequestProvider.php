@@ -3,7 +3,10 @@
 namespace GuzzleWrapper;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ServerException;
+use GuzzleHttp\Exception\TransferException;
 use RpContracts\Cache;
 use RpContracts\Logger;
 use RpContracts\Response;
@@ -167,6 +170,14 @@ class RequestProvider implements \RpContracts\RequestProvider
             try
             {
                 $response = $this->httpClient->request($method, $this->endpoint . '/' .$url, $options);
+            }
+            catch (RequestException $e)
+            {
+                if ($e->hasResponse()) {
+                    $response = $e->getResponse();
+                }
+
+                $errorsBag[] = $e;
             }
             catch (\Throwable $e)
             {
