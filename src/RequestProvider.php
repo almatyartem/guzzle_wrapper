@@ -84,6 +84,17 @@ class RequestProvider implements \RpContracts\RequestProvider
     }
 
     /**
+     * @param array $defaultOptions
+     * @return $this
+     */
+    public function setDefaultOptions(array $defaultOptions) : RequestProvider
+    {
+        $this->defaultOptions = $defaultOptions;
+
+        return $this;
+    }
+
+    /**
      * @param string $url
      * @param string $method
      * @param array $data
