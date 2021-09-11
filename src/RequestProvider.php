@@ -114,7 +114,15 @@ class RequestProvider implements \RpContracts\RequestProvider
     {
         if($method == 'get' and $this->cacheProvider and $this->cacheProvider->has($url))
         {
-            return $this->cacheProvider->get($url);
+            $fromCache = $this->cacheProvider->get($url);
+            if($fromCache instanceof Response)
+            {
+                return $fromCache;
+            }
+            else
+            {
+                Log::error(json_encode($fromCache).' is not Response instance');
+            }
         }
 
         $options = $this->defaultOptions;
