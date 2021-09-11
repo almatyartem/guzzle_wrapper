@@ -119,10 +119,6 @@ class RequestProvider implements \RpContracts\RequestProvider
             {
                 return $fromCache;
             }
-            else
-            {
-                Log::error(json_encode($fromCache).' is not Response instance');
-            }
         }
 
         $options = $this->defaultOptions;
