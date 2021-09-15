@@ -101,6 +101,7 @@ class RequestProvider implements \RpContracts\RequestProvider
      * @param array $addHeaders
      * @param bool $postAsForm
      * @param int|null $cacheTtl
+     * @param bool $ignoreCache
      * @return Response
      */
     public function request(
@@ -109,10 +110,11 @@ class RequestProvider implements \RpContracts\RequestProvider
         array $data = [],
         array $addHeaders = [],
         bool $postAsForm = false,
-        int $cacheTtl = null
+        int $cacheTtl = null,
+        bool $ignoreCache = false
     ) : Response
     {
-        if($method == 'get' and $this->cacheProvider and $this->cacheProvider->has($url))
+        if($method == 'get' and !$ignoreCache and $this->cacheProvider and $this->cacheProvider->has($url))
         {
             $fromCache = $this->cacheProvider->get($url);
             if($fromCache instanceof Response)
@@ -153,7 +155,7 @@ class RequestProvider implements \RpContracts\RequestProvider
             ]);
         }
 
-        if($response->isSuccess() and $this->cacheProvider)
+        if($response->isSuccess() and $this->cacheProvider and $cacheTtl!==0)
         {
             if(!$this->doNotCacheEmptyResponse or $response->getContents())
             {
