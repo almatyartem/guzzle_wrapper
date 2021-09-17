@@ -9,6 +9,7 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use RpContracts\Cache;
 use RpContracts\Logger;
+use RpContracts\RequestData;
 use RpContracts\Response;
 
 class RequestProvider implements \RpContracts\RequestProvider
@@ -164,6 +165,15 @@ class RequestProvider implements \RpContracts\RequestProvider
         }
 
         return $response;
+    }
+
+    /**
+     * @param RequestData $request
+     * @return Response
+     */
+    public function performRequest(RequestData $request) : Response
+    {
+        return $this->request($request->getUrl(), $request->getMethod(), $request->getData(), $request->getHeaders(), $request->postAsForm(), $request->getCacheTtl(), $request->shouldIgnoreCache());
     }
 
     /**
