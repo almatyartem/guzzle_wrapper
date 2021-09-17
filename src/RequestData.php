@@ -34,7 +34,7 @@ class RequestData implements \RpContracts\RequestData
     /**
      * @return $this
      */
-    public function ignoreCache() : RequestData
+    public function ignoreCache() : self
     {
         $this->cacheTtl = 0;
 
