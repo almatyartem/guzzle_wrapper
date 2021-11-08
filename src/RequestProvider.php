@@ -125,6 +125,10 @@ class RequestProvider implements \RpContracts\RequestProvider
         }
 
         $options = $this->defaultOptions;
+        if(isset($options['proxy']) and is_array($options['proxy']))
+        {
+            $options['proxy'] = $options['proxy'][array_rand($options['proxy'])];
+        }
 
         if($method != 'get' and $data)
         {
