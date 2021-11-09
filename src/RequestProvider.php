@@ -55,6 +55,11 @@ class RequestProvider implements \RpContracts\RequestProvider
     protected array $defaultOptions = [];
 
     /**
+     * @var int
+     */
+    protected static int $proxyNum = 0;
+
+    /**
      * RequestProvider constructor.
      * @param string $endpoint
      * @param int $attemptsCountWhenServerError
@@ -125,10 +130,6 @@ class RequestProvider implements \RpContracts\RequestProvider
         }
 
         $options = $this->defaultOptions;
-        if(isset($options['proxy']) and is_array($options['proxy']))
-        {
-            $options['proxy'] = $options['proxy'][array_rand($options['proxy'])];
-        }
 
         if($method != 'get' and $data)
         {
@@ -181,16 +182,30 @@ class RequestProvider implements \RpContracts\RequestProvider
     }
 
     /**
-     * @param string $method
      * @param $url
+     * @param string $method
      * @param array $options
+     * @param int $i
      * @return Response
      */
     protected function sendRequestHandler($url, string $method, array $options = []) : Response
     {
+        if(isset($options['proxy']) and is_array($options['proxy']))
+        {
+            if(!isset($options['proxy'][self::$proxyNum]))
+            {
+                self::$proxyNum = 0;
+            }
+
+            $options['proxy'] = $options['proxy'][self::$proxyNum];
+
+            self::$proxyNum++;
+        }
+
         $currentAttempt = 0;
         $response = null;
         $errorsBag = [];
+        $tryAgain = false;
 
         do{
             $e = null;
@@ -204,20 +219,27 @@ class RequestProvider implements \RpContracts\RequestProvider
             }
             catch (RequestException $e)
             {
-                if ($e->hasResponse()) {
+                if ($e->hasResponse())
+                {
                     $response = $e->getResponse();
+                    if($response->getStatusCode() == 429 and isset($options['proxy']) and is_array($options['proxy']))
+                    {
+                        $errorsBag[] = $e;
+                        $tryAgain = true;
+                    }
                 }
 
                 $errorsBag[] = $e;
             }
             catch (\Throwable $e)
             {
+                $tryAgain = true;
                 $errorsBag[] = $e;
             }
 
             $currentAttempt++;
         }
-        while(isset($e) and ($e instanceof ServerException) and ($currentAttempt <= $this->attemptsCountWhenServerError));
+        while($tryAgain and ($currentAttempt <= $this->attemptsCountWhenServerError));
 
         return new ResponseWrapper($response, ($errorsBag ? $errorsBag : null));
     }
