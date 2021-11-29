@@ -205,9 +205,9 @@ class RequestProvider implements \RpContracts\RequestProvider
         $currentAttempt = 0;
         $response = null;
         $errorsBag = [];
-        $tryAgain = false;
 
         do{
+            $tryAgain = false;
             $e = null;
             if($currentAttempt > 0)
             {
