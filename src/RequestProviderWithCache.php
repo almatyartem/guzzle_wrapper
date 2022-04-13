@@ -82,7 +82,10 @@ class RequestProviderWithCache extends BaseRequestProvider implements \RpContrac
         {
             if(!$this->doNotCacheEmptyResponse or $response->getContents())
             {
-                $this->cacheProvider->put($url, $response, $cacheTtl);
+                try {
+                    $this->cacheProvider->put($url, $response, $cacheTtl);
+                }
+                catch (\Exception $exception){}
             }
         }
 
