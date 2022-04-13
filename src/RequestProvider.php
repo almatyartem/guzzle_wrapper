@@ -3,11 +3,7 @@
 namespace GuzzleWrapper;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ServerException;
-use GuzzleHttp\Exception\TransferException;
-use RpContracts\Cache;
 use RpContracts\Logger;
 use RpContracts\RequestData;
 use RpContracts\Response;
@@ -40,16 +36,6 @@ class RequestProvider implements \RpContracts\RequestProvider
     protected ?Logger $logger;
 
     /**
-     * @var Cache|null
-     */
-    protected ?Cache $cacheProvider;
-
-    /**
-     * @var bool
-     */
-    protected bool $doNotCacheEmptyResponse;
-
-    /**
      * @var array
      */
     protected array $defaultOptions = [];
@@ -65,8 +51,6 @@ class RequestProvider implements \RpContracts\RequestProvider
      * @param int $attemptsCountWhenServerError
      * @param int $sleepTimeBetweenAttempts
      * @param Logger|null $logger
-     * @param Cache|null $cacheProvider
-     * @param bool $doNotCacheEmptyResponse
      * @param array $defaultOptions
      */
     public function __construct(
@@ -74,8 +58,6 @@ class RequestProvider implements \RpContracts\RequestProvider
         int $attemptsCountWhenServerError = 1,
         int $sleepTimeBetweenAttempts = 1,
         Logger $logger = null,
-        Cache $cacheProvider = null,
-        bool $doNotCacheEmptyResponse = true,
         array $defaultOptions = []
     )
     {
@@ -84,8 +66,6 @@ class RequestProvider implements \RpContracts\RequestProvider
         $this->attemptsCountWhenServerError = $attemptsCountWhenServerError;
         $this->sleepTimeBetweenAttempts = $sleepTimeBetweenAttempts;
         $this->logger = $logger;
-        $this->cacheProvider = $cacheProvider;
-        $this->doNotCacheEmptyResponse = $doNotCacheEmptyResponse;
         $this->defaultOptions = $defaultOptions;
     }
 
@@ -120,15 +100,6 @@ class RequestProvider implements \RpContracts\RequestProvider
         bool $ignoreCache = false
     ) : Response
     {
-        if($method == 'get' and !$ignoreCache and $this->cacheProvider and $this->cacheProvider->has($url))
-        {
-            $fromCache = $this->cacheProvider->get($url);
-            if($fromCache instanceof Response)
-            {
-                return $fromCache;
-            }
-        }
-
         $options = $this->defaultOptions;
 
         if($method != 'get' and $data)
@@ -159,14 +130,6 @@ class RequestProvider implements \RpContracts\RequestProvider
                 'method' => $method,
                 'options' => $options
             ]);
-        }
-
-        if($response->isSuccess() and $this->cacheProvider and $cacheTtl!==0)
-        {
-            if(!$this->doNotCacheEmptyResponse or $response->getContents())
-            {
-                $this->cacheProvider->put($url, $response, $cacheTtl);
-            }
         }
 
         return $response;
@@ -206,7 +169,8 @@ class RequestProvider implements \RpContracts\RequestProvider
         $response = null;
         $errorsBag = [];
 
-        do{
+        do
+        {
             $tryAgain = false;
             $e = null;
             if($currentAttempt > 0)
