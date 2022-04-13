@@ -6,7 +6,7 @@ use RpContracts\Cache;
 use RpContracts\Logger;
 use RpContracts\Response;
 
-class RequestProviderWithCache extends RequestProvider implements \RpContracts\RequestProvider
+class RequestProviderWithCache extends BaseRequestProvider implements \RpContracts\RequestProvider
 {
     /**
      * @var Cache|null
