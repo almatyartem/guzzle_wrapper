@@ -126,7 +126,7 @@ class BaseRequestProvider implements \RpContracts\RequestProvider
         if($this->logger)
         {
             $this->logger->log($response, [
-                'url' => $url,
+                'url' => $this->endpoint . '/' .$url,
                 'method' => $method,
                 'options' => $options
             ]);
