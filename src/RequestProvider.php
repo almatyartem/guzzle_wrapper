@@ -100,6 +100,21 @@ class RequestProvider implements \RpContracts\RequestProvider
         return $this;
     }
 
+    public function requestWithBody(
+        string $url,
+        string $method = 'post',
+        string $body = '',
+        array $addHeaders = [],
+        int $cacheTtl = null,
+        bool $ignoreCache = false
+    ) : Response
+    {
+        $options = $this->defaultOptions;
+        $options['body'] = $body;
+
+        return $this->doRequest($url, $method, $options, $addHeaders, $cacheTtl, $ignoreCache);
+    }
+
     /**
      * @param string $url
      * @param string $method
@@ -120,26 +135,53 @@ class RequestProvider implements \RpContracts\RequestProvider
         bool $ignoreCache = false
     ) : Response
     {
+        $options = $this->defaultOptions;
+
+        if($postAsForm)
+        {
+            $options['form_params'] = $data;
+        }
+        else
+        {
+            $options['json'] = $data;
+        }
+
+        return $this->doRequest($url, $method, $options, $addHeaders, $cacheTtl, $ignoreCache);
+    }
+
+    /**
+     * @param RequestData $request
+     * @return Response
+     */
+    public function performRequest(RequestData $request) : Response
+    {
+        return $this->request($request->getUrl(), $request->getMethod(), $request->getData(), $request->getHeaders(), $request->postAsForm(), $request->getCacheTtl(), $request->shouldIgnoreCache());
+    }
+
+    /**
+     * @param string $url
+     * @param string $method
+     * @param array $options
+     * @param array $addHeaders
+     * @param int|null $cacheTtl
+     * @param bool $ignoreCache
+     * @return Response
+     */
+    public function doRequest(
+        string $url,
+        string $method = 'get',
+        array $options = [],
+        array $addHeaders = [],
+        int $cacheTtl = null,
+        bool $ignoreCache = false
+    ) : Response
+    {
         if($method == 'get' and !$ignoreCache and $this->cacheProvider and $this->cacheProvider->has($url))
         {
             $fromCache = $this->cacheProvider->get($url);
             if($fromCache instanceof Response)
             {
                 return $fromCache;
-            }
-        }
-
-        $options = $this->defaultOptions;
-
-        if($method != 'get' and $data)
-        {
-            if($postAsForm)
-            {
-                $options['form_params'] = $data;
-            }
-            else
-            {
-                $options['json'] = $data;
             }
         }
 
@@ -170,15 +212,6 @@ class RequestProvider implements \RpContracts\RequestProvider
         }
 
         return $response;
-    }
-
-    /**
-     * @param RequestData $request
-     * @return Response
-     */
-    public function performRequest(RequestData $request) : Response
-    {
-        return $this->request($request->getUrl(), $request->getMethod(), $request->getData(), $request->getHeaders(), $request->postAsForm(), $request->getCacheTtl(), $request->shouldIgnoreCache());
     }
 
     /**
