@@ -100,6 +100,15 @@ class RequestProvider implements \RpContracts\RequestProvider
         return $this;
     }
 
+    /**
+     * @param string $url
+     * @param string $method
+     * @param string $body
+     * @param array $addHeaders
+     * @param int|null $cacheTtl
+     * @param bool $ignoreCache
+     * @return Response
+     */
     public function requestWithBody(
         string $url,
         string $method = 'post',
