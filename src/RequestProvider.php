@@ -60,6 +60,11 @@ class RequestProvider implements \RpContracts\RequestProvider
     protected static int $proxyNum = 0;
 
     /**
+     * @var bool
+     */
+    protected bool $useCacheOnlyForGetRequests;
+
+    /**
      * RequestProvider constructor.
      * @param string $endpoint
      * @param int $attemptsCountWhenServerError
@@ -76,7 +81,9 @@ class RequestProvider implements \RpContracts\RequestProvider
         Logger $logger = null,
         Cache $cacheProvider = null,
         bool $doNotCacheEmptyResponse = true,
-        array $defaultOptions = []
+        array $defaultOptions = [],
+        bool $useCacheOnlyForGetRequests = true
+
     )
     {
         $this->httpClient = new Client(['verify' => false]);
@@ -87,6 +94,7 @@ class RequestProvider implements \RpContracts\RequestProvider
         $this->cacheProvider = $cacheProvider;
         $this->doNotCacheEmptyResponse = $doNotCacheEmptyResponse;
         $this->defaultOptions = $defaultOptions;
+        $this->useCacheOnlyForGetRequests = $useCacheOnlyForGetRequests;
     }
 
     /**
@@ -185,7 +193,7 @@ class RequestProvider implements \RpContracts\RequestProvider
         bool $ignoreCache = false
     ) : Response
     {
-        if($method == 'get' and !$ignoreCache and $this->cacheProvider and $this->cacheProvider->has($url))
+        if((!$this->useCacheOnlyForGetRequests or $method == 'get') and !$ignoreCache and $this->cacheProvider and $this->cacheProvider->has($url))
         {
             $fromCache = $this->cacheProvider->get($url);
             if($fromCache instanceof Response)
