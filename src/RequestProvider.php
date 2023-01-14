@@ -193,9 +193,16 @@ class RequestProvider implements \RpContracts\RequestProvider
         bool $ignoreCache = false
     ) : Response
     {
+        if($method == 'get'){
+            $cacheKey = $url;
+        } else {
+            $cacheKey = $url.serialize($options['json'] ?? $options['form_params']);
+        }
+
         if((!$this->useCacheOnlyForGetRequests or $method == 'get') and !$ignoreCache and $this->cacheProvider and $this->cacheProvider->has($url))
         {
-            $fromCache = $this->cacheProvider->get($url);
+            $fromCache = $this->cacheProvider->get($cacheKey);
+
             if($fromCache instanceof Response)
             {
                 return $fromCache;
@@ -224,7 +231,7 @@ class RequestProvider implements \RpContracts\RequestProvider
         {
             if(!$this->doNotCacheEmptyResponse or $response->getContents())
             {
-                $this->cacheProvider->put($url, $response, $cacheTtl);
+                $this->cacheProvider->put($cacheKey, $response, $cacheTtl);
             }
         }
 
