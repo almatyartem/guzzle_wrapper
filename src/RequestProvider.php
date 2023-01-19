@@ -123,13 +123,14 @@ class RequestProvider implements \RpContracts\RequestProvider
         string $body = '',
         array $addHeaders = [],
         int $cacheTtl = null,
-        bool $ignoreCache = false
+        bool $ignoreCache = false,
+        int $sleepBefore = 0
     ) : Response
     {
         $options = $this->defaultOptions;
         $options['body'] = $body;
 
-        return $this->doRequest($url, $method, $options, $addHeaders, $cacheTtl, $ignoreCache);
+        return $this->doRequest($url, $method, $options, $addHeaders, $cacheTtl, $ignoreCache, $sleepBefore);
     }
 
     /**
@@ -149,7 +150,8 @@ class RequestProvider implements \RpContracts\RequestProvider
         array $addHeaders = [],
         bool $postAsForm = false,
         int $cacheTtl = null,
-        bool $ignoreCache = false
+        bool $ignoreCache = false,
+        int $sleepBefore = 0
     ) : Response
     {
         $options = $this->defaultOptions;
@@ -163,7 +165,7 @@ class RequestProvider implements \RpContracts\RequestProvider
             $options['json'] = $data;
         }
 
-        return $this->doRequest($url, $method, $options, $addHeaders, $cacheTtl, $ignoreCache);
+        return $this->doRequest($url, $method, $options, $addHeaders, $cacheTtl, $ignoreCache, $sleepBefore);
     }
 
     /**
@@ -190,7 +192,8 @@ class RequestProvider implements \RpContracts\RequestProvider
         array $options = [],
         array $addHeaders = [],
         int $cacheTtl = null,
-        bool $ignoreCache = false
+        bool $ignoreCache = false,
+        int $sleepBefore = 0
     ) : Response
     {
         if($method == 'get'){
@@ -207,6 +210,10 @@ class RequestProvider implements \RpContracts\RequestProvider
             {
                 return $fromCache;
             }
+        }
+
+        if($sleepBefore){
+            sleep($sleepBefore);
         }
 
         $options['headers'] = ['Accept' => 'application/json'];
