@@ -202,7 +202,7 @@ class RequestProvider implements \RpContracts\RequestProvider
             $cacheKey = $url.serialize($options['json'] ?? $options['form_params']);
         }
 
-        if((!$this->useCacheOnlyForGetRequests or $method == 'get') and !$ignoreCache and $this->cacheProvider and $this->cacheProvider->has($url))
+        if((!$this->useCacheOnlyForGetRequests or $method == 'get') and !$ignoreCache and $this->cacheProvider and $this->cacheProvider->has($cacheKey))
         {
             $fromCache = $this->cacheProvider->get($cacheKey);
 
